@@ -20,6 +20,10 @@ import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
 
+import API from "@/api"
+// 将API挂载在原型对象上
+Vue.prototype.$API = API
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
