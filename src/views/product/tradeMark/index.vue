@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">tradeMark</div>
+  <div class="app-container">{{$t('test.TradeMark')}}</div>
 </template>
 
 <script>

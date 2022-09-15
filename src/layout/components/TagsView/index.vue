@@ -231,6 +231,7 @@ export default {
         color: #fff;
         border-color: #42b983;
         &::before {
+          opacity: 0;
           content: '';
           background: #fff;
           display: inline-block;

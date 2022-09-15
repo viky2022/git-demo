@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">sku管理</div>
+  <div class="app-container">{{$t('test.Sku')}}</div>
 </template>
 
 <script>

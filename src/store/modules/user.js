@@ -29,11 +29,13 @@ const mutations = {
 }
 
 const actions = {
-  // user login
+  // 处理登录user/login
   login({ commit }, userInfo) {
+    // 解构出用户名和密码
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
+        // 将响应体中的data（真正的数据）解构出来
         const { data } = response
         commit('SET_TOKEN', data.token)
         setToken(data.token)

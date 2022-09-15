@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">spu管理</div>
+  <div class="app-container">{{$t('test.Spu')}}</div>
 </template>
 
 <script>

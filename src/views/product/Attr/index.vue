@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">品牌管理</div>
+  <div class="app-container">{{$t('test.Attr')}}</div>
 </template>
 
 <script>

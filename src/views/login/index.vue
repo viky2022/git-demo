@@ -89,6 +89,7 @@ export default {
   name: 'Login',
   components: { LangSelect, SocialSign },
   data() {
+    // 表单验证的规则
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
         callback(new Error('Please enter the correct user name'))
@@ -160,13 +161,17 @@ export default {
         this.$refs.password.focus()
       })
     },
+    // 处理登录业务
     handleLogin() {
+      // 验证表单是否通过验证
       this.$refs.loginForm.validate(valid => {
         if (valid) {
+          // 开启按钮加载图标效果
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              // 关闭此效果
               this.loading = false
             })
             .catch(() => {

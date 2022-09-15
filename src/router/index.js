@@ -97,7 +97,7 @@ export const constantRoutes = [
     path: '/product',
     component: Layout,
     name: 'Product',
-    meta: { title: '商品管理', icon: 'user' },
+    meta: { title: 'CommodityManagement', icon: 'user' },
     children: [
       {
         path: 'tradeMark',

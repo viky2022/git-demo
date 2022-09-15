@@ -1,5 +1,21 @@
 export default {
+  // 自己添加的↓↓↓↓↓↓↓↓↓↓
+  test:{
+    CommodityManagement: '商品管理',
+    TradeMark: '商标',
+    Attr: '属性',
+    Sku: '单品',
+    Spu: '单元',
+  },
+  // 自己添加的↑↑↑↑↑↑↑↑↑↑
   route: {
+    // 自己添加的↓↓↓↓↓↓↓↓↓↓
+    CommodityManagement: '商品管理',
+    TradeMark: '商标',
+    Attr: '属性',
+    Sku: '单品',
+    Spu: '单元',
+    // 自己添加的↑↑↑↑↑↑↑↑↑↑
     dashboard: '首页',
     documentation: '文档',
     guide: '引导页',
