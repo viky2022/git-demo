@@ -217,12 +217,14 @@ export default {
       })
         .then(async () => {
           let result = await this.$API.tradeMark.reqDeleteTradeMark(row.id);
-          this.$message({
-            type: "success",
-            message: "删除成功!",
-          });
-          // 再次获取数据，需要进行判断，如果当前页数小于1，则需要回到上一页
-          this.getPageList(this.list.length > 1 ? this.page : this.page - 1);
+          if (result.code === 200) {
+            this.$message({
+              type: "success",
+              message: "删除成功!",
+            });
+            // 再次获取数据，需要进行判断，如果当前页数小于1，则需要回到上一页
+            this.getPageList(this.list.length > 1 ? this.page : this.page - 1);
+          }
         })
         .catch(() => {
           this.$message({

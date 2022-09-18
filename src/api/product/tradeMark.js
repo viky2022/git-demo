@@ -32,9 +32,7 @@ export const reqUpdateOrEditTradeMark = (tradeMark) => {
 
 // 删除商品接口DELETE /admin/product/baseTrademark/remove/{id}
 // 需要传递参数商品id
-export const reqDeleteTradeMark = (id) => {
-  request({
-    url: `/admin/product/baseTrademark/remove/${id}`,
-    method: 'DELETE'
-  })
-}
+export const reqDeleteTradeMark = (id) => request({
+  url: `/admin/product/baseTrademark/remove/${id}`,
+  method: 'DELETE'
+})
