@@ -4,14 +4,15 @@
     <el-card style="margin: 20px 0" class="box-card">
       <!-- 三级联动组件 -->
       <!-- 给CategorySelect绑定一个自定义事件，需要后续接收三级分类发起请求后的数据渲染到本页 -->
+      <!-- 这个回调的作用是将选中的参数向父组件传递 -->
       <CategorySelect
-        :isShowTable="isShowTable"
+        :isShowTable="isShowAttrTable"
         @getCategoryId="getCategoryId"
       ></CategorySelect>
     </el-card>
     <el-card class="box-card">
       <!-- 展示attr列表 -->
-      <div v-show="isShowTable">
+      <div v-show="isShowAttrTable">
         <!-- 添加按钮 -->
         <!-- 点击按钮后，需要数据展示列表，显示新增数据的表格 -->
         <el-button
@@ -64,7 +65,7 @@
         </el-table>
       </div>
       <!-- 修改attr -->
-      <div v-show="!isShowTable">
+      <div v-show="!isShowAttrTable">
         <el-form :inline="true" :model="attrInfo" class="demo-form-inline">
           <el-form-item label="属性名">
             <el-input
@@ -80,7 +81,7 @@
               @click="updateValue"
               >新增属性</el-button
             >
-            <el-button @click="isShowTable = true">取消</el-button>
+            <el-button @click="isShowAttrTable = true">取消</el-button>
           </el-form-item>
         </el-form>
 
@@ -128,7 +129,7 @@
           :disabled="attrInfo.attrValueList.length < 1"
           >保存</el-button
         >
-        <el-button @click="isShowTable = true">取消</el-button>
+        <el-button @click="isShowAttrTable = true">取消</el-button>
       </div>
     </el-card>
   </div>
@@ -150,7 +151,7 @@ export default {
       AttrList: [],
 
       // 展示表格的显示与隐藏
-      isShowTable: true,
+      isShowAttrTable: true,
 
       // 收集新增的attr属性数据
       attrInfo: {
@@ -182,7 +183,7 @@ export default {
         this.AttrList = [];
       } else {
         this.category3Id = id.categoryId;
-        // 当获得到三级分类id的时候，就说明可以发起请求获取展示的数据了
+        // 当获得到三级分类id的时候，就说明可以发起请求获取attrList展示的数据了
         this.getAttrList();
       }
     },
@@ -201,7 +202,7 @@ export default {
 
     // 点击新增按钮
     updateAttr() {
-      this.isShowTable = false;
+      this.isShowAttrTable = false;
       // 清空之前写好的表单数据
 
       (this.attrInfo = {
@@ -219,7 +220,7 @@ export default {
     // 点击编辑按钮
     editAttr(row) {
       // 点击编辑按钮也应该隐藏展示列表
-      this.isShowTable = false;
+      this.isShowAttrTable = false;
       // 必须深拷贝，可以使用lodash的深拷贝
       this.attrInfo = cloneDeep(row);
       // 给已有的属性值添加flag，默认为查看模式，所以flag=false
@@ -312,7 +313,7 @@ export default {
         await this.$API.attr.reqAttr(this.attrInfo);
         this.$message.success("保存成功");
         // 切换为展示列表
-        this.isShowTable = true;
+        this.isShowAttrTable = true;
         // 重新获取数据
         this.getAttrList();
       } catch (error) {
