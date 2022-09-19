@@ -6,7 +6,12 @@
     </el-form-item>
     <el-form-item label="品牌">
       <el-select placeholder="请选择品牌" v-model="spu.tmId">
-        <el-option  :label="tm.tmName" v-for="(tm,index) in tradeMarkList" :key="tm.id" :value="tm.id"></el-option>
+        <el-option
+          :label="tm.tmName"
+          v-for="(tm, index) in tradeMarkList"
+          :key="tm.id"
+          :value="tm.id"
+        ></el-option>
       </el-select>
     </el-form-item>
     <el-form-item label="SPU描述">
@@ -18,36 +23,83 @@
       ></el-input>
     </el-form-item>
     <el-form-item label="SPU图片">
+      <!-- 上传图片 -->
+      <!-- :on-preview="handlePictureCardPreview"预览的回调 -->
+      <!-- :on-remove="handleRemove"移除的回调 -->
+      <!-- list-type="picture-card"文件列表的类型 -->
+      <!-- file-list上传的文件列表,这个数组必须要有url与name字段 -->
       <el-upload
-        action="https://jsonplaceholder.typicode.com/posts/"
+        action="/dev-api/admin/product/fileUpload"
         list-type="picture-card"
         :on-preview="handlePictureCardPreview"
         :on-remove="handleRemove"
+        :file-list="spuImageList"
       >
         <i class="el-icon-plus"></i>
       </el-upload>
+      <el-dialog :visible.sync="dialogVisible">
+        <img width="100%" :src="dialogImageUrl" alt="" />
+      </el-dialog>
     </el-form-item>
     <el-form-item label="销售属性">
       <el-select placeholder="还有3未选择">
-        <el-option label="区域一" value="shanghai"></el-option>
-        <el-option label="区域二" value="beijing"></el-option>
+        <el-option
+          :label="item.name"
+          v-for="item in unSelectSaleAttr"
+          :key="item.id"
+        ></el-option>
       </el-select>
       <el-button type="primary" icon="el-icon-plus" style="margin-left: 10px"
         >添加销售属性</el-button
       >
-      <el-table border style="width: 100%; margin: 20px 0">
+      <el-table
+        :data="spu.spuSaleAttrList"
+        border
+        style="width: 100%; margin: 20px 0"
+      >
         <el-table-column type="index" label="序号" width="100" align="center">
         </el-table-column>
         <el-table-column
-          prop="name"
-          label="名属性名"
+          prop="saleAttrName"
+          label="属性名"
           width="260"
           align="center"
         >
         </el-table-column>
-        <el-table-column prop="address" label="属性值名称列表" align="center">
+        <el-table-column prop="address" label="属性值名称列表">
+          <template slot-scope="{ row }">
+            <el-tag
+              :key="item.id"
+              v-for="item in row.spuSaleAttrValueList"
+              closable
+              :disable-transitions="false"
+              @close="handleClose(tag)"
+            >
+              {{ item.saleAttrValueName }}
+            </el-tag>
+            <el-input
+              class="input-new-tag"
+              v-if="inputVisible"
+              v-model="inputValue"
+              ref="saveTagInput"
+              size="small"
+              @keyup.enter.native="handleInputConfirm"
+              @blur="handleInputConfirm"
+            >
+            </el-input>
+            <el-button
+              v-else
+              class="button-new-tag"
+              size="small"
+              @click="showInput"
+              >+ New Tag</el-button
+            >
+          </template>
         </el-table-column>
         <el-table-column prop="address" label="操作" width="260" align="center">
+          <template slot-scope="{ row }">
+            <el-button type="danger" icon="el-icon-delete">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
     </el-form-item>
@@ -63,6 +115,9 @@ export default {
   name: "spuForm",
   data() {
     return {
+      // el-tag相关
+      inputValue: "",
+
       // 照片墙相关属性
       dialogImageUrl: "",
       dialogVisible: false,
@@ -136,7 +191,13 @@ export default {
       // 获取spu图片的接口
       const spuImageListResult = await this.$API.spu.reqSpuImageList(spu.id);
       if (spuImageListResult.code == 200) {
-        this.spuImageList = spuImageListResult.data;
+        // 由于展示的图片列表需要url与name属性，服务器返回的是imgUrl与imgName属性，需要处理
+        let listAttr = spuImageListResult.data;
+        listAttr.forEach((item) => {
+          item.name = item.imgName;
+          item.url = item.imgUrl;
+        });
+        this.spuImageList = listAttr;
       }
 
       // 获取平台全部的销售属性，一共是3个
@@ -145,8 +206,58 @@ export default {
         this.baseSaleAttrList = baseSaleAttrListResult.data;
       }
     },
+
+    // el-tag相关
+    handleClose(tag) {
+      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+    },
+
+    showInput() {
+      this.inputVisible = true;
+      this.$nextTick((_) => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+
+    handleInputConfirm() {
+      let inputValue = this.inputValue;
+      if (inputValue) {
+        this.dynamicTags.push(inputValue);
+      }
+      this.inputVisible = false;
+      this.inputValue = "";
+    },
+  },
+
+  computed: {
+    unSelectSaleAttr() {
+      // 整个平台的销售属性
+      let result = this.baseSaleAttrList.filter((item) => {
+        return this.spu.spuSaleAttrList.every((item1) => {
+          return item.name != item1.saleAttrName;
+        });
+      });
+      return result;
+    },
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+/* el-tag */
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
+</style>
