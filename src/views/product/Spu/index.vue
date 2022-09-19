@@ -11,7 +11,7 @@
     <el-card>
       <!-- 根据几部分变换来控制是展示还是隐藏（3种变换，三个div） -->
       <!-- 展示spuList -->
-      <div v-if="scene == 0">
+      <div v-show="scene == 0">
         <el-button
           type="primary"
           icon="el-icon-plus"
@@ -37,7 +37,7 @@
                 type="warning"
                 title="编辑"
                 icon="el-icon-edit"
-                @click="editSpuList"
+                @click="editSpuList(row)"
               ></el-button>
               <el-button
                 type="info"
@@ -68,8 +68,8 @@
         </el-pagination>
       </div>
       <!-- 修改或添加spuList -->
-      <spuForm v-if="scene == 1"></spuForm>
-      <skuForm v-if="scene == 2"></skuForm>
+      <spuForm v-show="scene == 1" @changeScene="changeScene" ref="spu"></spuForm>
+      <skuForm v-show="scene == 2"></skuForm>
     </el-card>
   </div>
 </template>
@@ -130,7 +130,6 @@ export default {
     async getSpuList() {
       let { page, limit, category3Id } = this;
       const result = await this.$API.spu.reqSpuList(page, limit, category3Id);
-      console.log(result);
       if (result.code === 200) {
         this.spuList = result.data.records;
         this.total = result.data.total;
@@ -156,9 +155,17 @@ export default {
       this.scene = 1;
     },
     // 修改spuList的数据
-    editSpuList() {
+    editSpuList(row) {
       this.scene = 1;
+      // 获取到spu组件来发起请求
+      // 使用直接获取到子组件对象来发请求，可以往子组件身上传参数
+      this.$refs.spu.initSpuFormDate(row)
     },
+
+    changeScene(num){
+      this.scene=num
+    }
+    
   },
 
   components: {
