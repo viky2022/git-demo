@@ -1,7 +1,6 @@
-  // 需要使用二次封装好的函数
+// 需要使用二次封装好的函数
 import request from "@/utils/request"
 
-// 1.请求tradeMark列表的api
 // 获取商品分类的接口GET /admin/product/baseTrademark/{page}/{limit}
 // {}为需要传递的参数
 export const reqTradeMarkList = (page, limit) => request({
@@ -9,30 +8,31 @@ export const reqTradeMarkList = (page, limit) => request({
   method: 'GET'
 })
 
-// 2.添加图片请求的api
-// POST /admin/product/baseTrademark/save
-// 需要携带两个参数：品牌名称，品牌logo，不需要传递ID
+// 新增商品接口POST /admin/product/baseTrademark/save
+// 需要传递参数图片logoUrl 商品名称tmName
 
-// 3.请求接口
-// PUT /admin/product/baseTrademark/update
-// 需要携带三个参数：品牌名称，品牌logo，ID
-
-// tradeMark是传递参数的对象，包含名称，url，或则可能带有id
-export const reqAddOrUpdateTradeMark = (tradeMark) =>{
-  // 通过传入的对象是否带有id来判断是修改还是新增
-  if(tradeMark.id){
-    // 这里编写修改接口
+// 编辑商品接口PUT /admin/product/baseTrademark/update
+// 需要传递参数图片logoUrl 商品名称tmName
+export const reqUpdateOrEditTradeMark = (tradeMark) => {
+  // 通过判断传入的参数是否有id来判断是修改还是新增
+  if (tradeMark.id) {
     return request({
-      url:'/admin/product/baseTrademark/update',
-      method:'PUT',
-      data:tradeMark
-  })
-  }else{
-    // 这里编写新增接口
+      url: '/admin/product/baseTrademark/update',
+      method: 'PUT',
+      data: tradeMark
+    })
+  } else {
     return request({
-      url:'/admin/product/baseTrademark/save',
-      method:'POST',
-      data:tradeMark
+      url: '/admin/product/baseTrademark/save',
+      method: 'POST',
+      data: tradeMark
     })
   }
 }
+
+// 删除商品接口DELETE /admin/product/baseTrademark/remove/{id}
+// 需要传递参数商品id
+export const reqDeleteTradeMark = (id) => request({
+  url: `/admin/product/baseTrademark/remove/${id}`,
+  method: 'DELETE'
+})

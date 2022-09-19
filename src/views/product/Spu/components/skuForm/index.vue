@@ -1,10 +1,10 @@
 <template>
-  <div class="app-container">{{ $t("test.Sku") }}</div>
+  <div>我是skuForm</div>
 </template>
 
 <script>
 export default {
-  name: "Sku",
+  name: "skuForm",
 };
 </script>
 
