@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">{{ $t("test.Sku") }}</div>
+  <div class="app-container">{{$t("test.Sku")}}</div>
 </template>
 
 <script>

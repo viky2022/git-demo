@@ -4,7 +4,7 @@
       <!-- 不要直接使用这个，而是使用之前的 -->
       <!-- <CategorySelect></CategorySelect> -->
       <CategorySelect
-        :isShowTable="!isShowSpuTable"
+        :isShowTable="scene==0"
         @getCategoryId="getCategoryId"
       ></CategorySelect>
     </el-card>
@@ -32,6 +32,7 @@
                 type="success"
                 title="添加"
                 icon="el-icon-plus"
+                @click="addSku(row)"
               ></el-button>
               <el-button
                 type="warning"
@@ -69,7 +70,7 @@
       </div>
       <!-- 修改或添加spuList -->
       <spuForm v-show="scene == 1" @changeScene="changeScene" ref="spu"></spuForm>
-      <skuForm v-show="scene == 2"></skuForm>
+      <skuForm v-show="scene == 2" ref="sku"></skuForm>
     </el-card>
   </div>
 </template>
@@ -87,8 +88,6 @@ export default {
       category2Id: "",
       category3Id: "",
 
-      // 是否可用
-      isShowSpuTable: false,
 
       // 分页器相关,默认展示第一页，默认展示数据最大值为3
       page: 1,
@@ -152,6 +151,7 @@ export default {
 
     // 新增spuList的数据
     updateSpuList() {
+      // 需要先通知子组件先清空数据
       this.scene = 1;
     },
     // 修改spuList的数据
@@ -163,7 +163,18 @@ export default {
     },
 
     changeScene(num){
-      this.scene=num
+      this.scene=num,
+      // 传入现在的page，请求数据就不会换行
+      this.getSpuList(this.page)
+    },
+
+    // 点击添加SKU按钮的回调
+    addSku(row){
+      // 点击切换场景为2
+      this.scene=2
+      // console.log(row);
+      // 获取子组件，让子组件发送请求
+      this.$refs.sku.getData(this.category1Id,this.category2Id,row);
     }
     
   },

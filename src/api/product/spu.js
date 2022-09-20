@@ -40,7 +40,8 @@ export const reqBaseSaleAttrList=()=>request({
 })
 
 // 保存上传或更新spu的数据
-// POST /admin/product/saveSpuInfo
+// POST /admin/product/saveSpuInfo保存接口
+// POST /admin/product/updateSpuInfo更新接口
 // spu的修改和上传收集数据的位置是不一样的，点击编辑进去的时候，可以把数据收到spu中，但是新增的则是个空数据
 // 收集数据的时候需要那些字段呢
 /* {
@@ -75,3 +76,20 @@ export const reqBaseSaleAttrList=()=>request({
     }
   ],
 } */
+export const reqUpdateOrEditSpuInfo=(data)=>{
+  if(data.id){
+    // 更新接口
+    return request({
+      url:"/admin/product/updateSpuInfo",
+      method:"POST",
+      data
+    })
+  }else{
+    // 添加接口
+    return request({
+      url:"/admin/product/saveSpuInfo",
+      method:"POST",
+      data
+    })
+  }
+}

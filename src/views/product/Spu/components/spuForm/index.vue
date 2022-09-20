@@ -22,7 +22,7 @@
         v-model="spu.description"
       ></el-input>
     </el-form-item>
-    <el-form-item label="SPU图片">
+    <el-form-item label="SPU图片" >
       <!-- 上传图片 -->
       <!-- :on-preview="handlePictureCardPreview"预览的回调 -->
       <!-- :on-remove="handleRemove"移除的回调 -->
@@ -34,6 +34,7 @@
         :on-preview="handlePictureCardPreview"
         :on-remove="handleRemove"
         :file-list="spuImageList"
+        :on-success="handleAvatarSuccess"
       >
         <i class="el-icon-plus"></i>
       </el-upload>
@@ -70,16 +71,15 @@
           <template slot-scope="{ row }">
             <el-tag
               :key="item.id"
-              v-for="item in row.spuSaleAttrValueList"
+              v-for="(item,index) in row.spuSaleAttrValueList"
               closable
               :disable-transitions="false"
-              @close="handleClose(tag)"
+              @close="row.spuSaleAttrValueList.splice(index,1)"
             >
               {{ item.saleAttrValueName }}
             </el-tag>
             <el-input
               class="input-new-tag"
-              v-if="inputVisible"
               v-model="inputValue"
               ref="saveTagInput"
               size="small"
@@ -88,24 +88,23 @@
             >
             </el-input>
             <el-button
-              v-else
               class="button-new-tag"
               size="small"
-              @click="showInput"
+             
               >+ New Tag</el-button
             >
           </template>
         </el-table-column>
         <el-table-column prop="address" label="操作" width="260" align="center">
-          <template slot-scope="{ row }">
-            <el-button type="danger" icon="el-icon-delete">删除</el-button>
+          <template slot-scope="{ row,$index }">
+            <el-button type="danger" icon="el-icon-delete" @click="spu.spuSaleAttrList.splice($index,1)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary">提交</el-button>
-      <el-button @click="$emit('changeScene', 0)">取消</el-button>
+      <el-button type="primary" @click="updateOrEditSpuInfo">提交</el-button>
+      <el-button @click="clearAllData">取消</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -116,6 +115,7 @@ export default {
   data() {
     return {
       // el-tag相关
+     
       inputValue: "",
 
       // 照片墙相关属性
@@ -166,12 +166,22 @@ export default {
   },
 
   methods: {
+    // 删除图片，file是删除的图片，fileList参数是剩下的其余图片
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+      // 收集照片墙图片的数据
+      this.spuImageList=fileList
     },
+    // 预览图片，file是预览的图片
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
+    },
+    // 上传图片成功时
+    handleAvatarSuccess(response, file, fileList){
+      // response是返回的图片信息
+      // file是本地的图片信息
+      // fileList是所有的图片序列，注：上传的图片是带有response属性的，方便后期我们获取并保存修改的图片路径
+      console.log(response, file, fileList);
     },
 
     // 初始化spuForm的数据
@@ -207,17 +217,14 @@ export default {
       }
     },
 
-    // el-tag相关
-    handleClose(tag) {
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
-    },
-
+    /* // el-tag相关
     showInput() {
+      // 切换为输入模式
       this.inputVisible = true;
-      this.$nextTick((_) => {
-        this.$refs.saveTagInput.$refs.input.focus();
+      this.$nextTick(() => {
+        this.spu.spuSaleAttrList.spuSaleAttrValueList.push()
       });
-    },
+    }, */
 
     handleInputConfirm() {
       let inputValue = this.inputValue;
@@ -227,6 +234,72 @@ export default {
       this.inputVisible = false;
       this.inputValue = "";
     },
+
+    // 点击提交按钮的回调
+    async updateOrEditSpuInfo(){
+    // 如果参数比较多而杂，必须整理参数
+    // 如收集的图片并没有存放到spu中，且携带的字段是url与name，并非imgUrl与imgName
+    this.spu.spuImageList=this.spuImageList.map(item=>{
+      return {
+        imgName:item.name,
+        imgUrl:(item.response&&item.response.data)||item.url
+      }
+    })
+
+    // 发起请求
+    const result= await this.$API.spu.reqUpdateOrEditSpuInfo(this.spu)
+    if(result.code==200){
+      this.$message.success('提交成功')
+      // 通知父亲，将scene变为0，之后还要再次获取列表的数据
+      this.$emit('changeScene',0)
+    }
+    },
+
+    // 清空数据
+    clearAllData(){
+      // 在这里清空数据
+      this.$emit('changeScene', 0)
+       // 存储spu信息属性
+       this.spu= {
+        category3Id: 0, //三级分类的id
+        tmId: 0, //品牌的id
+        description: "", //spu描述
+        spuName: "", //spu的名称
+        spuImageList: [
+          //照片墙的数据
+          {
+            id: 0,
+            imgName: "",
+            imgUrl: "",
+            spuId: 0,
+          },
+        ],
+       spuSaleAttrList: [
+          {
+            baseSaleAttrId: 0,
+            id: 0,
+            saleAttrName: "",
+            spuId: 0,
+            spuSaleAttrValueList: [
+              {
+                baseSaleAttrId: 0,
+                id: 0,
+                isChecked: "",
+                saleAttrName: "",
+                saleAttrValueName: "",
+                spuId: 0,
+              },
+            ],
+          },
+        ],
+      }
+      // 存储品牌信息
+      this.tradeMarkList= []
+      // 存储spu图片
+      this.spuImageList= []
+      // 平台全部的销售属性
+      this.baseSaleAttrList= []
+    }
   },
 
   computed: {
